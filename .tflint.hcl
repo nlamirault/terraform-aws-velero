@@ -12,13 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-terraform {
-  required_version = ">= 0.14.0"
+config {
+  module = false
+  force = false
+  disabled_by_default = false
 
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = ">= 3.26.0"
-    }
+  ignore_module = {
   }
+
+}
+
+plugin "aws" {
+  enabled = true
 }

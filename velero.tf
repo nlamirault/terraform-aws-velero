@@ -80,7 +80,7 @@ data "aws_iam_policy_document" "velero_permissions" {
   }
 
   statement {
-    effect  = "Allow"
+    effect = "Allow"
 
     actions = [
       "kms:Encrypt",
@@ -105,5 +105,3 @@ resource "aws_iam_role_policy_attachment" "velero" {
   role       = aws_iam_role.velero.name
   policy_arn = aws_iam_policy.velero_permissions.arn
 }
-
-

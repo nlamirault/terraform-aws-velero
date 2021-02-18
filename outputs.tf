@@ -1,4 +1,3 @@
-
 # Copyright (C) 2021 Nicolas Lamirault <nicolas.lamirault@gmail.com>
 
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,14 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-resource "aws_kms_key" "velero" {
-  description             = "KMS for Velero"
-  deletion_window_in_days = var.deletion_window_in_days
-  enable_key_rotation     = true
-  tags                    = var.tags
+output "role_arn" {
+  value       = element(aws_iam_role.velero.*.arn, 0)
+  description = "Role ARN for Velero"
 }
 
-resource "aws_kms_alias" "velero" {
-  name          = "alias/velero"
-  target_key_id = aws_kms_key.velero.key_id
+output "kms_arn" {
+  value       = aws_kms_key.velero.arn
+  description = "Role ARN for Velero KMS key"
 }

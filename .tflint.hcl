@@ -12,10 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-output "role_arn" {
-  value = element(aws_iam_role.velero.*.arn, 0)
+config {
+  module = false
+  force = false
+  disabled_by_default = false
+
+  ignore_module = {
+  }
+
 }
 
-output "kms_arn" {
-  value = aws_kms_key.velero.arn
+plugin "aws" {
+  enabled = true
 }

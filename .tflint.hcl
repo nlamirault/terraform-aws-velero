@@ -22,6 +22,40 @@ config {
 
 }
 
-plugin "aws" {
+###############################################################################
+# Rules
+
+rule "terraform_deprecated_interpolation" { enabled = true }
+rule "terraform_deprecated_interpolation" { enabled = true }
+rule "terraform_deprecated_index" { enabled = true }
+rule "terraform_unused_declarations" { enabled = true }
+rule "terraform_comment_syntax" { enabled = true }
+rule "terraform_documented_outputs" { enabled = true }
+rule "terraform_documented_variables" { enabled = true }
+rule "terraform_typed_variables" { enabled = true }
+rule "terraform_naming_convention" { enabled = true }
+rule "terraform_required_version" { enabled = true }
+rule "terraform_required_providers" { enabled = true }
+rule "terraform_unused_required_providers" { enabled = true }
+rule "terraform_standard_module_structure" { enabled = true }
+
+###############################################################################
+# GOOGLE
+
+plugin "google" {
+  enabled = true
+
+  version = "0.10.0"
+  source  = "github.com/terraform-linters/tflint-ruleset-google"
+}
+
+###############################################################################
+# PORTEFAIX
+
+plugin "portefaix" {
   enabled = true
 }
+
+rule "terraform_portefaix_standard_structure" { enabled = false }
+rule "terraform_portefaix_standard_files" { enabled = false }
+rule "terraform_portefaix_tfenv" { enabled = true }

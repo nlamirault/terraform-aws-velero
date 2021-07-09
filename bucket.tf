@@ -16,7 +16,12 @@ resource "aws_s3_bucket" "velero_log" {
   bucket        = format("%s-log", local.service_name)
   acl           = "log-delivery-write"
   force_destroy = true
-  tags          = var.tags
+
+  tags = var.tags
+
+  versioning {
+    enabled = true
+  }
 
   server_side_encryption_configuration {
     rule {
@@ -32,7 +37,12 @@ resource "aws_s3_bucket" "velero" {
   bucket        = local.service_name
   acl           = "private"
   force_destroy = true
-  tags          = var.tags
+
+  tags = var.tags
+
+  versioning {
+    enabled = true
+  }
 
   logging {
     target_bucket = aws_s3_bucket.velero_log.id

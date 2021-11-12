@@ -12,49 +12,73 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-resource "aws_s3_bucket" "velero_log" {
-  bucket        = format("%s-log", local.service_name)
+module "velero_log" {
+  source  = "terraform-aws-modules/s3-bucket/aws"
+  version = "2.11.1"
+
+  bucket                  = format("%s-log", local.service_name)
+  block_public_acls       = true
+  block_public_policy     = true
+  restrict_public_buckets = true
+  ignore_public_acls      = true
+
   acl           = "log-delivery-write"
   force_destroy = true
 
-  tags = var.tags
+  tags = merge(
+    { "Name" = format("%s-log", local.service_name) },
+    local.tags
+  )
 
-  versioning {
+  versioning = {
     enabled = true
   }
 
-  server_side_encryption_configuration {
-    rule {
-      apply_server_side_encryption_by_default {
-        kms_master_key_id = aws_kms_key.velero.arn
+  server_side_encryption_configuration = var.enable_kms ? {
+    rule = {
+      bucket_key_enabled = true
+      apply_server_side_encryption_by_default = {
+        kms_master_key_id = aws_kms_key.velero[0].arn
         sse_algorithm     = "aws:kms"
       }
     }
-  }
+  } : {}
 }
 
-resource "aws_s3_bucket" "velero" {
-  bucket        = local.service_name
+module "velero" {
+  source  = "terraform-aws-modules/s3-bucket/aws"
+  version = "2.11.1"
+
+  bucket                  = local.service_name
+  block_public_acls       = true
+  block_public_policy     = true
+  restrict_public_buckets = true
+  ignore_public_acls      = true
+
   acl           = "private"
   force_destroy = true
 
-  tags = var.tags
+  tags = merge(
+    { "Name" = local.service_name },
+    local.tags
+  )
 
-  versioning {
-    enabled = true
-  }
-
-  logging {
-    target_bucket = aws_s3_bucket.velero_log.id
+  logging = {
+    target_bucket = module.velero_log.s3_bucket_id
     target_prefix = "log/"
   }
 
-  server_side_encryption_configuration {
-    rule {
-      apply_server_side_encryption_by_default {
-        kms_master_key_id = aws_kms_key.velero.arn
+  versioning = {
+    enabled = true
+  }
+
+  server_side_encryption_configuration = var.enable_kms ? {
+    rule = {
+      bucket_key_enabled = true
+      apply_server_side_encryption_by_default = {
+        kms_master_key_id = aws_kms_key.velero[0].arn
         sse_algorithm     = "aws:kms"
       }
     }
-  }
+  } : {}
 }

@@ -12,31 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-data "aws_iam_policy_document" "assume_role_policy" {
-  statement {
-    actions = ["sts:AssumeRoleWithWebIdentity"]
-    effect  = "Allow"
-
-    condition {
-      test     = "StringEquals"
-      variable = "${replace(data.aws_secretsmanager_secret_version.oidc_url.secret_binary, "https://", "")}:sub"
-      values   = [format("system:serviceaccount:%s:%s", var.namespace, var.service_account)]
-    }
-
-    principals {
-      identifiers = [data.aws_secretsmanager_secret_version.oidc_arn.secret_binary]
-      type        = "Federated"
-    }
-  }
-}
-
-resource "aws_iam_role" "velero" {
-  assume_role_policy = data.aws_iam_policy_document.assume_role_policy.json
-  name               = local.service_name
-  tags               = var.tags
-}
-
-data "aws_iam_policy_document" "velero_permissions" {
+data "aws_iam_policy_document" "backup" {
   statement {
     sid = "ec2"
 
@@ -59,7 +35,7 @@ data "aws_iam_policy_document" "velero_permissions" {
       "s3:ListBucket",
     ]
 
-    resources = [aws_s3_bucket.velero.arn, ]
+    resources = [module.velero.s3_bucket_arn, ]
   }
 
   statement {
@@ -74,10 +50,28 @@ data "aws_iam_policy_document" "velero_permissions" {
     ]
 
     resources = [
-      aws_s3_bucket.velero.arn,
-      "${aws_s3_bucket.velero.arn}/*"
+      module.velero.s3_bucket_arn,
+      "${module.velero.s3_bucket_arn}/*"
     ]
   }
+
+  # statement {
+  #   effect = "Allow"
+
+  #   actions = [
+  #     "kms:Encrypt",
+  #     "kms:Decrypt",
+  #     "kms:GenerateDataKey*",
+  #   ]
+
+  #   resources = [
+  #     module.velero.s3_bucket_arn,
+  #   ]
+  # }
+}
+
+data "aws_iam_policy_document" "kms" {
+  count = var.enable_kms ? 1 : 0
 
   statement {
     effect = "Allow"
@@ -89,19 +83,52 @@ data "aws_iam_policy_document" "velero_permissions" {
     ]
 
     resources = [
-      aws_kms_key.velero.arn
+      aws_kms_key.velero[0].arn
     ]
   }
 }
 
-resource "aws_iam_policy" "velero_permissions" {
+resource "aws_iam_policy" "backup" {
   name        = local.service_name
   path        = "/"
   description = "Permissions for Velero"
-  policy      = data.aws_iam_policy_document.velero_permissions.json
+  policy      = data.aws_iam_policy_document.backup.json
+  tags = merge(
+    { "Name" = format("%s-bucket", local.service_name) },
+    local.tags
+  )
 }
 
-resource "aws_iam_role_policy_attachment" "velero" {
-  role       = aws_iam_role.velero.name
-  policy_arn = aws_iam_policy.velero_permissions.arn
+resource "aws_iam_policy" "kms" {
+  count = var.enable_kms ? 1 : 0
+
+  name        = local.service_name
+  path        = "/"
+  description = "Permissions for Velero"
+  policy      = data.aws_iam_policy_document.kms[0].json
+  tags = merge(
+    { "Name" = format("%s-kms", local.service_name) },
+    local.tags
+  )
+}
+
+module "velero_role" {
+  source  = "terraform-aws-modules/iam/aws//modules/iam-assumable-role-with-oidc"
+  version = "4.7.0"
+
+  create_role      = true
+  role_description = "Role for Velero"
+  role_name        = local.role_name
+  provider_url     = data.aws_eks_cluster.this.identity[0].oidc[0].issuer
+  role_policy_arns = var.enable_kms ? [
+    aws_iam_policy.backup.arn,
+    aws_iam_policy.kms[0].arn,
+    ] : [
+    aws_iam_policy.backup.arn,
+  ]
+  oidc_fully_qualified_subjects = ["system:serviceaccount:${var.namespace}:${var.service_account}"]
+  tags = merge(
+    { "Name" = local.role_name },
+    local.tags
+  )
 }

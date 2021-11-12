@@ -13,6 +13,7 @@
 # limitations under the License.
 
 resource "aws_kms_key" "velero" {
+  count                   = var.enable_kms ? 1 : 0
   description             = "KMS for Velero"
   deletion_window_in_days = var.deletion_window_in_days
   enable_key_rotation     = true
@@ -20,6 +21,7 @@ resource "aws_kms_key" "velero" {
 }
 
 resource "aws_kms_alias" "velero" {
+  count         = var.enable_kms ? 1 : 0
   name          = "alias/velero"
-  target_key_id = aws_kms_key.velero.key_id
+  target_key_id = aws_kms_key.velero[0].key_id
 }

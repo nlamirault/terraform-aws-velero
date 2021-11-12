@@ -13,11 +13,6 @@
 # limitations under the License.
 
 output "role_arn" {
-  value       = element(aws_iam_role.velero.*.arn, 0)
+  value       = module.velero_role.iam_role_arn
   description = "Role ARN for Velero"
-}
-
-output "kms_arn" {
-  value       = aws_kms_key.velero.arn
-  description = "Role ARN for Velero KMS key"
 }

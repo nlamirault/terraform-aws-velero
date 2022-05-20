@@ -1,6 +1,6 @@
 # Velero into AWS
 
-![Tfsec](https://github.com/nlamirault/terraform-aws-velero/workflows/Tfsec/badge.svg)
+[![Tfsec](https://github.com/nlamirault/terraform-aws-velero/actions/workflows/tfsec.yml/badge.svg)](https://github.com/nlamirault/terraform-aws-velero/actions/workflows/tfsec.yml)
 
 ## Usage
 

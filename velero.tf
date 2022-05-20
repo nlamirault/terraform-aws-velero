@@ -25,6 +25,7 @@ data "aws_iam_policy_document" "backup" {
       "ec2:DeleteSnapshot",
     ]
 
+    #tfsec:ignore:aws-iam-no-policy-wildcards
     resources = ["*", ]
   }
 
@@ -49,6 +50,7 @@ data "aws_iam_policy_document" "backup" {
       "s3:ListMultipartUploadParts"
     ]
 
+    #tfsec:ignore:aws-iam-no-policy-wildcards
     resources = [
       module.velero.s3_bucket_arn,
       "${module.velero.s3_bucket_arn}/*"

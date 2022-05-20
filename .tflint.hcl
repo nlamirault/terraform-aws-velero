@@ -1,4 +1,4 @@
-# Copyright (C) 2021 Nicolas Lamirault <nicolas.lamirault@gmail.com>
+# Copyright (C) Nicolas Lamirault <nicolas.lamirault@gmail.com>
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -40,22 +40,10 @@ rule "terraform_unused_required_providers" { enabled = true }
 rule "terraform_standard_module_structure" { enabled = true }
 
 ###############################################################################
-# GOOGLE
+# AWS
 
-plugin "google" {
-  enabled = true
-
-  version = "0.10.0"
-  source  = "github.com/terraform-linters/tflint-ruleset-google"
+plugin "aws" {
+    enabled = true
+    version = "0.13.4"
+    source  = "github.com/terraform-linters/tflint-ruleset-aws"
 }
-
-###############################################################################
-# PORTEFAIX
-
-plugin "portefaix" {
-  enabled = true
-}
-
-rule "terraform_portefaix_standard_structure" { enabled = false }
-rule "terraform_portefaix_standard_files" { enabled = false }
-rule "terraform_portefaix_tfenv" { enabled = true }

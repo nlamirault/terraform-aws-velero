@@ -14,7 +14,7 @@
 
 module "velero_log" {
   source  = "terraform-aws-modules/s3-bucket/aws"
-  version = "2.15.0"
+  version = "3.2.3"
 
   bucket                  = format("%s-log", local.service_name)
   block_public_acls       = true
@@ -47,7 +47,7 @@ module "velero_log" {
 
 module "velero" {
   source  = "terraform-aws-modules/s3-bucket/aws"
-  version = "2.15.0"
+  version = "3.2.3"
 
   bucket                  = local.service_name
   block_public_acls       = true

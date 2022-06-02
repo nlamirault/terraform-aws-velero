@@ -117,7 +117,7 @@ resource "aws_iam_policy" "kms" {
 
 module "velero_role" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-assumable-role-with-oidc"
-  version = "5.0.0"
+  version = "5.1.0"
 
   create_role      = true
   role_description = "Role for Velero"

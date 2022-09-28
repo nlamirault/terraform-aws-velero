@@ -1,5 +1,7 @@
 # Velero into AWS
 
+Deprecated. See: https://github.com/terraform-aws-modules/terraform-aws-iam/tree/master/modules/iam-role-for-service-accounts-eks
+
 [![Tfsec](https://github.com/nlamirault/terraform-aws-velero/actions/workflows/tfsec.yml/badge.svg)](https://github.com/nlamirault/terraform-aws-velero/actions/workflows/tfsec.yml)
 
 ## Usage
